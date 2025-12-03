@@ -40,6 +40,16 @@ public class ClienteDAO {
     // Consulta SQL para obtener todos los clientes ordenados por id.
 
 
+    private static final String SEARCH_SQL = """
+                    SELECT id, nombre, email
+                    FROM cliente
+                    WHERE CAST(id AS TEXT) ILIKE ? 
+                        OR nombre ILIKE ?  
+                        OR email ILIKE ?
+                    ORDER BY id                    
+                    """;
+
+
     // ----------------------------------------------------------
     // MÉTODO: INSERTAR UN CLIENTE
     // ----------------------------------------------------------
@@ -128,5 +138,39 @@ public class ClienteDAO {
 
         return out;   // Devolvemos la lista completa.
     }
+
+    public List<Cliente> search(String filtro) throws SQLException {
+
+        String patron = "%" + filtro + "%";
+
+        try (Connection con = Db.getConnection();
+           PreparedStatement pst = con.prepareStatement(SEARCH_SQL)) {
+            pst.setString(1, patron);
+            pst.setString(2, patron);
+            pst.setString(3, patron);
+
+            List<Cliente> out = new ArrayList<>();
+
+            try(ResultSet rs = pst.executeQuery()){
+
+                while (rs.next()){
+                    out.add(mapRow(rs));
+                }
+            }
+            return out;
+        }
+    }
+
+    private Cliente mapRow(ResultSet rs) throws SQLException {
+
+        Cliente c = new Cliente(
+                rs.getInt("id"),
+                rs.getString("nombre"),
+                rs.getString("email")
+        );
+
+        return c;
+    }
+
 
 }
