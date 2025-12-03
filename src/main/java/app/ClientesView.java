@@ -7,7 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -20,11 +19,17 @@ import java.util.stream.Collectors;
 /**
  * Vista JavaFX para gestionar clientes.
  *
- * IMPORTANTE:
- *  - Ahora mismo el DAO solo tiene: insert, findById, findAll.
- *  - Los botones de Buscar / Modificar / Borrar ya existen en la interfaz,
- *    pero parte de la lógica está marcada como TODO para implementarla
- *    cuando se añadan los métodos update, delete, search en ClienteDAO.
+ * Versión preparada para trabajar más adelante con DetalleCliente,
+ * pero de momento:
+ *  - SOLO usa ClienteDAO (insert, findById, findAll).
+ *  - La tabla muestra únicamente datos de Cliente (id, nombre, email).
+ *  - Los campos de detalle (dirección, teléfono, notas) se muestran en el
+ *    formulario, pero aún NO se guardan en BD.
+ *
+ * Cuando exista DetalleClienteDAO, podrás:
+ *  - Cargar el detalle al seleccionar un cliente.
+ *  - Guardar/actualizar detalle junto con el cliente.
+ *  - Borrar detalle cuando borres un cliente.
  */
 public class ClientesView {
 
@@ -34,21 +39,26 @@ public class ClientesView {
     private final TableView<Cliente> tabla = new TableView<>();
     private final ObservableList<Cliente> datos = FXCollections.observableArrayList();
 
-    // Campos de formulario
+    // Campos de formulario (Cliente)
     private final TextField txtId = new TextField();
     private final TextField txtNombre = new TextField();
     private final TextField txtEmail = new TextField();
 
+    // Campos de formulario (DetalleCliente) – por ahora solo visuales
+    private final TextField txtDireccion = new TextField();
+    private final TextField txtTelefono  = new TextField();
+    private final TextField txtNotas     = new TextField();
+
     // Botones CRUD
-    private final Button btnNuevo = new Button("Nuevo");
-    private final Button btnGuardar = new Button("Guardar");
-    private final Button btnBorrar = new Button("Borrar");
+    private final Button btnNuevo    = new Button("Nuevo");
+    private final Button btnGuardar  = new Button("Guardar");
+    private final Button btnBorrar   = new Button("Borrar");
     private final Button btnRecargar = new Button("Recargar");
 
     // Búsqueda
-    private final TextField txtBuscar = new TextField();
-    private final Button btnBuscar = new Button("Buscar");
-    private final Button btnLimpiarBusqueda = new Button("Limpiar");
+    private final TextField txtBuscar          = new TextField();
+    private final Button    btnBuscar          = new Button("Buscar");
+    private final Button    btnLimpiarBusqueda = new Button("Limpiar");
 
     // DAO (acceso a BD)
     private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -81,7 +91,21 @@ public class ClientesView {
         colEmail.setCellValueFactory(c ->
                 new javafx.beans.property.SimpleStringProperty(c.getValue().getEmail()));
 
-        tabla.getColumns().addAll(colId, colNombre, colEmail);
+        // ===== Columnas “placeholder” para DetalleCliente =====
+        TableColumn<Cliente, String> colDireccion = new TableColumn<>("Dirección");
+        colDireccion.setCellValueFactory(c ->
+                new javafx.beans.property.SimpleStringProperty(""));
+
+        TableColumn<Cliente, String> colTelefono = new TableColumn<>("Teléfono");
+        colTelefono.setCellValueFactory(c ->
+                new javafx.beans.property.SimpleStringProperty(""));
+
+        TableColumn<Cliente, String> colNotas = new TableColumn<>("Notas");
+        colNotas.setCellValueFactory(c ->
+                new javafx.beans.property.SimpleStringProperty(""));
+
+        tabla.getColumns().addAll(colId, colNombre, colEmail,
+                colDireccion, colTelefono, colNotas);
         tabla.setItems(datos);
 
         root.setCenter(tabla);
@@ -93,6 +117,7 @@ public class ClientesView {
         form.setHgap(10);
         form.setVgap(10);
 
+        // ----- Cliente -----
         txtId.setPromptText("ID (entero)");
         txtNombre.setPromptText("Nombre");
         txtEmail.setPromptText("Email");
@@ -103,6 +128,18 @@ public class ClientesView {
         form.add(txtNombre, 1, 1);
         form.add(new Label("Email:"), 0, 2);
         form.add(txtEmail, 1, 2);
+
+        // ----- DetalleCliente (solo UI, sin BD de momento) -----
+        txtDireccion.setPromptText("Dirección");
+        txtTelefono.setPromptText("Teléfono");
+        txtNotas.setPromptText("Notas");
+
+        form.add(new Label("Dirección:"), 0, 3);
+        form.add(txtDireccion, 1, 3);
+        form.add(new Label("Teléfono:"), 0, 4);
+        form.add(txtTelefono, 1, 4);
+        form.add(new Label("Notas:"), 0, 5);
+        form.add(txtNotas, 1, 5);
 
         // Zona botones CRUD
         HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
@@ -125,10 +162,19 @@ public class ClientesView {
         // Cuando seleccionamos una fila en la tabla, pasamos los datos al formulario
         tabla.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
+                // Cliente
                 txtId.setText(String.valueOf(newSel.getId()));
                 txtNombre.setText(newSel.getNombre());
                 txtEmail.setText(newSel.getEmail());
                 txtId.setDisable(true); // al editar, de momento, no dejamos cambiar el ID
+
+                // DetalleCliente (cuando exista DetalleClienteDAO se cargará desde BD)
+                // TODO: cuando implementéis DetalleClienteDAO, aquí:
+                //   - detalleDAO.findById(newSel.getId())
+                //   - rellenar txtDireccion, txtTelefono, txtNotas con sus valores
+                txtDireccion.clear();
+                txtTelefono.clear();
+                txtNotas.clear();
             }
         });
 
@@ -203,6 +249,9 @@ public class ClientesView {
         txtId.clear();
         txtNombre.clear();
         txtEmail.clear();
+        txtDireccion.clear();
+        txtTelefono.clear();
+        txtNotas.clear();
         txtId.setDisable(false);
         tabla.getSelectionModel().clearSelection();
     }
@@ -212,8 +261,10 @@ public class ClientesView {
      *  - Si no existe en la BD → INSERT usando ClienteDAO.insert()
      *  - Si existe → por ahora solo muestra un aviso.
      *
-     * Más adelante, cuando implementéis ClienteDAO.update(Cliente),
-     * aquí se puede llamar a update si ya existe.
+     * NOTA:
+     *  - Los datos de detalle (dirección, teléfono, notas) todavía NO se guardan.
+     *  - Cuando tengáis DetalleClienteDAO y/o ClienteService, aquí se podrá:
+     *      * insertar/actualizar también el detalle en una transacción.
      */
     private void guardarCliente() {
         // Validación rápida
@@ -238,20 +289,30 @@ public class ClientesView {
                 txtNombre.getText().trim(),
                 txtEmail.getText().trim());
 
+        // En el futuro podrías crear aquí también un DetalleCliente con:
+        //   id, txtDireccion.getText(), txtTelefono.getText(), txtNotas.getText()
+        // y pasarlo a un ClienteService.crearClienteConDetalle(...)
+
         try {
             Cliente existente = clienteDAO.findById(id);
 
             if (existente == null) {
                 // No existe → INSERT real
                 clienteDAO.insert(c);
+
+                // TODO: cuando exista DetalleClienteDAO, aquí insertar también el detalle.
+                //  Ejemplo futuro:
+                //  detalleDAO.insert(new DetalleCliente(id, dir, tlf, notas));
+
                 mostrarInfo("Insertado", "Cliente creado correctamente.");
             } else {
                 // Ya existe → aquí en el futuro iría un UPDATE.
                 // TODO: cuando implementéis ClienteDAO.update(Cliente),
-                //  llamad aquí a ese método en lugar de mostrar solo un aviso.
+                //  y DetalleClienteDAO.update(DetalleCliente),
+                //  llamad aquí a esos métodos (idealmente a través de ClienteService).
                 mostrarAlerta("Actualizar pendiente",
                         "El cliente ya existe.\n" +
-                                "Más adelante aquí haremos UPDATE desde el DAO.");
+                                "Más adelante aquí haremos UPDATE desde el DAO/Service.");
             }
 
             recargarDatos();
@@ -268,6 +329,10 @@ public class ClientesView {
      *
      * Cuando implementéis ClienteDAO.deleteById(int id),
      * se puede llamar aquí a ese método.
+     *
+     * Y cuando exista DetalleClienteDAO, sería buena idea borrar primero
+     * el detalle del cliente y luego el cliente (o usar ON DELETE CASCADE
+     * + transacción en un Service).
      */
     private void borrarClienteSeleccionado() {
         Cliente sel = tabla.getSelectionModel().getSelectedItem();
@@ -285,11 +350,14 @@ public class ClientesView {
         }
 
         // TODO: implementar ClienteDAO.deleteById(int id) y llamarlo aquí.
+        // TODO futuro: cuando haya DetalleClienteDAO, borrar primero detalle,
+        //  después cliente, o delegarlo todo a ClienteService.deleteClienteCompleto(id).
+
         mostrarAlerta("Borrado pendiente",
                 "Aún no existe deleteById en ClienteDAO.\n" +
                         "Cuando lo implementemos, aquí se llamará al método.");
 
-        // Cuando exista:
+        // Ejemplo futuro:
         /*
         try {
             int borradas = clienteDAO.deleteById(sel.getId());
