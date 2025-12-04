@@ -21,34 +21,34 @@ public class DetalleClienteDAO {
 
     /** Consulta para insertar un detalle asociado a un cliente. */
     private static final String INSERT_SQL = """
-            INSERT INTO lampreadb.detalle_cliente (id, direccion, telefono, notas)
+            INSERT INTO detalle_cliente (id, direccion, telefono, notas)
             VALUES (?, ?, ?, ?)
             """;
 
     /** Consulta para obtener un detalle por su id (que coincide con id cliente). */
     private static final String SELECT_BY_ID_SQL = """
             SELECT id, direccion, telefono, notas
-            FROM lampreadb.detalle_cliente
+            FROM detalle_cliente
             WHERE id = ?
             """;
 
     /** Consulta para listar todos los detalles (útil para debugging). */
     private static final String SELECT_ALL_SQL = """
             SELECT id, direccion, telefono, notas
-            FROM lampreadb.detalle_cliente
+            FROM detalle_cliente
             ORDER BY id
             """;
 
     /** Consulta para actualizar los datos del detalle. */
     private static final String UPDATE_SQL = """
-            UPDATE lampreadb.detalle_cliente
+            UPDATE detalle_cliente
             SET direccion = ?, telefono = ?, notas = ?
             WHERE id = ?
             """;
 
     /** Consulta para borrar un detalle por ID. */
     private static final String DELETE_SQL = """
-            DELETE FROM lampreadb.detalle_cliente
+            DELETE FROM detalle_cliente
             WHERE id = ?
             """;
 
