@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ClienteDAO {
     // Clase DAO que contiene la lógica de acceso a datos para la entidad Cliente.
-    // Todo lo relacionado con INSERT, SELECT, UPDATE y DELETE de clientes se pone aquí.
+    // To do lo relacionado con INSERT, SELECT, UPDATE y DELETE de clientes se pone aquí.
 
     // ----------------------------------------------------------
     // SENTENCIAS SQL PREPARADAS COMO CONSTANTES
