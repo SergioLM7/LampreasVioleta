@@ -50,6 +50,17 @@ public class ClienteDAO {
                     """;
     //Consulta SQL de búsqueda universal para todos los campos de todos los clientes
 
+    private static final String UPDATE_SQL = """ 
+            UPDATE cliente
+            SET nombre = ?, email = ?
+            WHERE id = ?
+            """;
+    //Consulta SQL para actualizar los datos básicos de un Cliente
+
+    private static final String DELETE_SQL = "DELETE FROM cliente WHERE id = ?";
+    //Consulta SQL para eliminar un Cliente por su ID.
+
+
     // ----------------------------------------------------------
     // MÉTODO: INSERTAR UN CLIENTE
     // ----------------------------------------------------------
@@ -154,6 +165,38 @@ public class ClienteDAO {
             }
             return out;
         }
+    }
+
+    /**
+     * Actualiza los datos del cliente.
+     * Si id no existe, devuelve 0.
+     */
+    public int update(Cliente c) throws SQLException {
+
+        try (Connection con = Db.getConnection();
+        PreparedStatement ps = con.prepareStatement(UPDATE_SQL)) {
+
+            ps.setString(1, c.getNombre());
+            ps.setString(2, c.getEmail());
+            ps.setInt(3, c.getId());
+
+            return ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Borra un cliente concreto por su ID.
+     */
+    public int deleteById(int id) throws SQLException  {
+
+        try(Connection con = Db.getConnection();
+        PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
+
+            ps.setInt(1, id);
+
+            return ps.executeUpdate();
+        }
+
     }
 
     private Cliente mapRow(ResultSet rs) throws SQLException {
