@@ -245,8 +245,14 @@ public class ClientesView {
         }
     }
 
-
+    /**
+     * Búsqueda de clientes en BBD.
+     *
+     * Se busca en todos los campos de cada Cliente en base a si contienen el texto
+     * que haya en el campo txtBuscar de la interfaz gráfica
+     */
     private void buscarClientesEnBBDD(){
+        //Se coge lo que haya en la casilla donde se escribe (txtBuscar en este caso de JavaFX)
         String filtro = txtBuscar.getText().trim();
 
         if ((filtro.isEmpty())){
@@ -257,7 +263,6 @@ public class ClientesView {
         try {
             List<Cliente> lista = clienteDAO.search(filtro);
             datos.setAll(lista);
-
         } catch (SQLException e){
             mostrarError("Error al buscar", e);
         }
