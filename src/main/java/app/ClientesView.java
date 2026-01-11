@@ -283,7 +283,7 @@ public class ClientesView {
     /**
      * Guardar cliente:
      *  - Si no existe en la BD → INSERT usando ClienteDAO.insert()
-     *  - Si existe → por ahora solo muestra un aviso.
+     *  - Si existe → actualizar los datos con los nuevos inputs.
      *
      * NOTA:
      *  - Los datos de detalle (dirección, teléfono, notas) todavía NO se guardan.
@@ -330,13 +330,12 @@ public class ClientesView {
 
                 mostrarInfo("Insertado", "Cliente creado correctamente.");
             } else {
-                // Ya existe → aquí en el futuro iría un UPDATE.
-                // TODO: cuando implementéis ClienteDAO.update(Cliente),
-                //  y DetalleClienteDAO.update(DetalleCliente),
+                // Ya existe → UPDATE
+                // TODO: cuando implementéis etalleClienteDAO.update(DetalleCliente),
                 //  llamad aquí a esos métodos (idealmente a través de ClienteService).
-                mostrarAlerta("Actualizar pendiente",
-                        "El cliente ya existe.\n" +
-                                "Más adelante aquí haremos UPDATE desde el DAO/Service.");
+                clienteDAO.update(c);
+                mostrarInfo("Actualizado",
+                        "El cliente " + c.getNombre() + " se ha actualizado correctamente.");
             }
 
             recargarDatos();
@@ -349,12 +348,10 @@ public class ClientesView {
 
     /**
      * Borrar cliente seleccionado.
-     * De momento solo muestra un aviso con un TODO.
      *
-     * Cuando implementéis ClienteDAO.deleteById(int id),
-     * se puede llamar aquí a ese método.
+     * Borra un cliente por su ID.
      *
-     * Y cuando exista DetalleClienteDAO, sería buena idea borrar primero
+     * Cuando exista DetalleClienteDAO, sería buena idea borrar primero
      * el detalle del cliente y luego el cliente (o usar ON DELETE CASCADE
      * + transacción en un Service).
      */
@@ -373,29 +370,22 @@ public class ClientesView {
             return;
         }
 
-        // TODO: implementar ClienteDAO.deleteById(int id) y llamarlo aquí.
         // TODO futuro: cuando haya DetalleClienteDAO, borrar primero detalle,
         //  después cliente, o delegarlo todo a ClienteService.deleteClienteCompleto(id).
-
-        mostrarAlerta("Borrado pendiente",
-                "Aún no existe deleteById en ClienteDAO.\n" +
-                        "Cuando lo implementemos, aquí se llamará al método.");
-
-        // Ejemplo futuro:
-        /*
         try {
-            int borradas = clienteDAO.deleteById(sel.getId());
-            if (borradas > 0) {
-                mostrarInfo("Borrado", "Cliente eliminado.");
+            int borrado = clienteDAO.deleteById(sel.getId());
+
+            if(borrado > 0) {
+                mostrarInfo("Borrado correcto", "El cliente " + sel.getNombre() + " se ha borrado correctamente.");
                 recargarDatos();
                 limpiarFormulario();
             } else {
-                mostrarAlerta("No borrado", "No se encontró el cliente en la BD.");
+                mostrarAlerta("Borrado incorrecto", "No se encontró el cliente en la BBDD.");
             }
         } catch (SQLException e) {
             mostrarError("Error al borrar cliente", e);
         }
-        */
+
     }
 
     /* =========================================================
