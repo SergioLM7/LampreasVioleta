@@ -48,7 +48,7 @@ public class ClienteDAO {
                         OR email ILIKE ?
                     ORDER BY id                    
                     """;
-
+    //Consulta SQL de búsqueda universal para todos los campos de todos los clientes
 
     // ----------------------------------------------------------
     // MÉTODO: INSERTAR UN CLIENTE
@@ -124,21 +124,16 @@ public class ClienteDAO {
 
             while (rs.next()) {
                 // Iteramos por cada fila del ResultSet.
-                // Cada fila se convierte en un objeto Cliente.
-
-                Cliente c = new Cliente(
-                        rs.getInt("id"),
-                        rs.getString("nombre"),
-                        rs.getString("email")
-                );
-
-                out.add(c);   // Añadimos el cliente a la lista.
+                out.add(mapRow(rs));   // Mapeamos el ResultSet a un objeto Cliente y lo añadimos a la lista.
             }
         }
 
         return out;   // Devolvemos la lista completa.
     }
 
+    // ----------------------------------------------------------
+    // MÉTODO: BÚSQUEDA UNIVERSAL EN TODOS LOS CAMPOS DE CLIENTE
+    // ----------------------------------------------------------
     public List<Cliente> search(String filtro) throws SQLException {
 
         String patron = "%" + filtro + "%";
@@ -162,14 +157,11 @@ public class ClienteDAO {
     }
 
     private Cliente mapRow(ResultSet rs) throws SQLException {
-
-        Cliente c = new Cliente(
+        return new Cliente(
                 rs.getInt("id"),
                 rs.getString("nombre"),
                 rs.getString("email")
         );
-
-        return c;
     }
 
 
