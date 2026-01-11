@@ -1,6 +1,7 @@
 package app;
 
 import dao.ClienteDAO;
+import dao.DetalleClienteDAO;
 import model.Cliente;
 
 import javafx.collections.FXCollections;
@@ -11,9 +12,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import model.DetalleCliente;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +48,9 @@ public class ClientesView {
     private final TextField txtNombre = new TextField();
     private final TextField txtEmail = new TextField();
 
+    // Caché en memoria: idCliente -> Detalle
+    private final Map<Integer, DetalleCliente> cacheDetalles = new HashMap<>();
+
     // Campos de formulario (DetalleCliente) – por ahora solo visuales
     private final TextField txtDireccion = new TextField();
     private final TextField txtTelefono  = new TextField();
@@ -62,6 +69,7 @@ public class ClientesView {
 
     // DAO (acceso a BD)
     private final ClienteDAO clienteDAO = new ClienteDAO();
+    private final DetalleClienteDAO detalleClienteDAO = new DetalleClienteDAO();
 
     public ClientesView() {
         configurarTabla();
@@ -93,16 +101,25 @@ public class ClientesView {
 
         // ===== Columnas “placeholder” para DetalleCliente =====
         TableColumn<Cliente, String> colDireccion = new TableColumn<>("Dirección");
-        colDireccion.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colDireccion.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getDireccion() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         TableColumn<Cliente, String> colTelefono = new TableColumn<>("Teléfono");
-        colTelefono.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colTelefono.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getTelefono() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         TableColumn<Cliente, String> colNotas = new TableColumn<>("Notas");
-        colNotas.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(""));
+        colNotas.setCellValueFactory(c -> {
+            DetalleCliente d = cacheDetalles.get(c.getValue().getId());
+            String valor = (d != null) ? d.getNotas() : "";
+            return new javafx.beans.property.SimpleStringProperty(valor);
+        });
 
         tabla.getColumns().addAll(colId, colNombre, colEmail,
                 colDireccion, colTelefono, colNotas);
@@ -206,8 +223,20 @@ public class ClientesView {
      */
     private void recargarDatos() {
         try {
-            List<Cliente> lista = clienteDAO.findAll();
-            datos.setAll(lista);
+            //1. Cargar datos de todos los clientes
+            List<Cliente> clientes = clienteDAO.findAll();
+
+            //2. Cargar todos los detalles de los clientes
+            List<DetalleCliente> detallesClientes = detalleClienteDAO.findAll();
+
+            //3. Rellenar la caché id -> detalle
+            cacheDetalles.clear();
+            for(DetalleCliente d : detallesClientes) {
+                cacheDetalles.put(d.getId(), d);
+            }
+
+            //4. Refrescar la tabla
+            datos.setAll(clientes);
         } catch (SQLException e) {
             mostrarError("Error al cargar clientes", e);
         }
@@ -309,13 +338,16 @@ public class ClientesView {
             return;
         }
 
+        // CLiente con ID escrito por el usuario
         Cliente c = new Cliente(id,
                 txtNombre.getText().trim(),
                 txtEmail.getText().trim());
 
-        // En el futuro podrías crear aquí también un DetalleCliente con:
-        //   id, txtDireccion.getText(), txtTelefono.getText(), txtNotas.getText()
-        // y pasarlo a un ClienteService.crearClienteConDetalle(...)
+        // DetalleCliente con el mismo ID
+        DetalleCliente d = new DetalleCliente(id,
+                txtDireccion.getText().trim(),
+                txtTelefono.getText().trim(),
+                txtNotas.getText().trim());
 
         try {
             Cliente existente = clienteDAO.findById(id);
@@ -324,11 +356,9 @@ public class ClientesView {
                 // No existe → INSERT real
                 clienteDAO.insert(c);
 
-                // TODO: cuando exista DetalleClienteDAO, aquí insertar también el detalle.
-                //  Ejemplo futuro:
-                //  detalleDAO.insert(new DetalleCliente(id, dir, tlf, notas));
+                detalleClienteDAO.insert(d);
 
-                mostrarInfo("Insertado", "Cliente creado correctamente.");
+                mostrarInfo("Insertado", "Cliente y detalle creados correctamente (sin transacción).");
             } else {
                 // Ya existe → UPDATE
                 // TODO: cuando implementéis etalleClienteDAO.update(DetalleCliente),
