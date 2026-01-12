@@ -80,6 +80,29 @@ public class DetalleClienteDAO {
     }
 
     /**
+     * Inserta un detalle nuevo.
+     * IMPORTANTE: el id debe coincidir con un cliente existente (relación 1:1).
+     */
+    public void insert(DetalleCliente d, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(INSERT_SQL)) {
+
+            pst.setInt(1, d.getId());
+            pst.setString(2, d.getDireccion());
+
+            String telefono =  d.getTelefono();
+            if(telefono == null || telefono.isBlank()) {
+                pst.setNull(3, Types.VARCHAR); //fuerza NULL - rompe el NOT NULL
+            } else {
+                pst.setString(3, d.getTelefono().trim());
+            }
+
+            pst.setString(4, d.getNotas());
+
+            pst.executeUpdate();
+        }
+    }
+
+    /**
      * Obtiene un detalle según el ID (clave primaria).
      * Devuelve null si no existe.
      */
