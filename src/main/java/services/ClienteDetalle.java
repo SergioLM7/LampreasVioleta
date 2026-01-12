@@ -42,5 +42,61 @@ public class ClienteDetalle {
 
     }
 
+    /**
+     * Función para gestinar la actualización de cualquier campo del Cliente junto a su DetalleCliente simultáneamente
+     **/
+    public void updateClienteCompleto(Cliente c, DetalleCliente dc) throws SQLException {
+
+        try(Connection con = Db.getConnection()) {
+
+            con.setAutoCommit(false);
+
+            try {
+                clienteDAO.update(c, con);
+
+                if(detalleClienteDAO.findById(c.getId()) == null) {
+                    detalleClienteDAO.insert(dc, con);
+                } else {
+                    detalleClienteDAO.update(dc, con);
+                }
+
+                con.commit();
+
+            } catch (SQLException e) {
+                con.rollback();
+                throw  e;
+            } finally {
+                con.setAutoCommit(true);
+            }
+
+        }
+
+    }
+
+    public int deleteClienteCompleto(int id) throws SQLException {
+        int deleteOperationResult;
+        try(Connection con = Db.getConnection()) {
+            con.setAutoCommit(false);
+
+            try {
+                int deleteDetalleClienteResult = detalleClienteDAO.deleteById(id, con);
+                int deleteClienteResult = clienteDAO.deleteById(id);
+
+                if (deleteDetalleClienteResult == 0 && deleteClienteResult == 0) {
+                    deleteOperationResult = 0;
+                } else {
+                    deleteOperationResult = deleteClienteResult;
+                }
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            } finally {
+                con.setAutoCommit(true);
+            }
+        }
+
+        return deleteOperationResult;
+    }
+
 
 }
