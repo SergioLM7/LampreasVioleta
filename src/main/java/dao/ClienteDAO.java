@@ -207,12 +207,42 @@ public class ClienteDAO {
     }
 
     /**
+     * Actualiza los datos del cliente.
+     * Si id no existe, devuelve 0.
+     */
+    public int update(Cliente c, Connection con) throws SQLException {
+
+        try (PreparedStatement ps = con.prepareStatement(UPDATE_SQL)) {
+
+            ps.setString(1, c.getNombre());
+            ps.setString(2, c.getEmail());
+            ps.setInt(3, c.getId());
+
+            return ps.executeUpdate();
+        }
+    }
+
+    /**
      * Borra un cliente concreto por su ID.
      */
     public int deleteById(int id) throws SQLException  {
 
         try(Connection con = Db.getConnection();
         PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
+
+            ps.setInt(1, id);
+
+            return ps.executeUpdate();
+        }
+
+    }
+
+    /**
+     * Borra un cliente concreto por su ID.
+     */
+    public int deleteById(int id, Connection con) throws SQLException  {
+
+        try(PreparedStatement ps = con.prepareStatement(DELETE_SQL)) {
 
             ps.setInt(1, id);
 

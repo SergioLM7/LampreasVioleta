@@ -157,11 +157,42 @@ public class DetalleClienteDAO {
     }
 
     /**
+     * Actualiza los datos del detalle.
+     * Si id no existe, devuelve 0.
+     */
+    public int update(DetalleCliente d, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(UPDATE_SQL)) {
+
+            pst.setString(1, d.getDireccion());
+            if(d.getTelefono() == null || d.getTelefono().isBlank()) {
+                pst.setNull(2, Types.VARCHAR);
+            } else {
+                pst.setString(2, d.getTelefono());
+            }
+            pst.setString(3, d.getNotas());
+            pst.setInt(4, d.getId());
+
+            return pst.executeUpdate(); // número de filas afectadas
+        }
+    }
+
+    /**
      * Borra un detalle concreto.
      */
     public int deleteById(int id) throws SQLException {
         try (Connection con = Db.getConnection();
              PreparedStatement pst = con.prepareStatement(DELETE_SQL)) {
+
+            pst.setInt(1, id);
+            return pst.executeUpdate();
+        }
+    }
+
+    /**
+     * Borra un detalle concreto.
+     */
+    public int deleteById(int id, Connection con) throws SQLException {
+        try (PreparedStatement pst = con.prepareStatement(DELETE_SQL)) {
 
             pst.setInt(1, id);
             return pst.executeUpdate();
