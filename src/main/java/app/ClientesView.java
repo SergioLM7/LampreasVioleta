@@ -13,6 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.DetalleCliente;
+import services.ClienteDetalle;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -70,6 +71,9 @@ public class ClientesView {
     // DAO (acceso a BD)
     private final ClienteDAO clienteDAO = new ClienteDAO();
     private final DetalleClienteDAO detalleClienteDAO = new DetalleClienteDAO();
+
+    //Service
+    private final ClienteDetalle clienteService = new ClienteDetalle();
 
     public ClientesView() {
         configurarTabla();
@@ -338,7 +342,7 @@ public class ClientesView {
             return;
         }
 
-        // CLiente con ID escrito por el usuario
+        // Cliente con ID escrito por el usuario
         Cliente c = new Cliente(id,
                 txtNombre.getText().trim(),
                 txtEmail.getText().trim());
@@ -353,12 +357,10 @@ public class ClientesView {
             Cliente existente = clienteDAO.findById(id);
 
             if (existente == null) {
-                // No existe → INSERT real
-                clienteDAO.insert(c);
+                // No existe → INSERT
+                clienteService.guardarClienteCompleto(c, d);
 
-                detalleClienteDAO.insert(d);
-
-                mostrarInfo("Insertado", "Cliente y detalle creados correctamente (sin transacción).");
+                mostrarInfo("Insertado", "Cliente y detalle creados correctamente (con transacción OK).");
             } else {
                 // Ya existe → UPDATE
                 // TODO: cuando implementéis etalleClienteDAO.update(DetalleCliente),
