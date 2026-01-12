@@ -24,17 +24,9 @@ import java.util.stream.Collectors;
 /**
  * Vista JavaFX para gestionar clientes.
  *
- * Versión preparada para trabajar más adelante con DetalleCliente,
- * pero de momento:
- *  - SOLO usa ClienteDAO (insert, findById, findAll).
- *  - La tabla muestra únicamente datos de Cliente (id, nombre, email).
- *  - Los campos de detalle (dirección, teléfono, notas) se muestran en el
- *    formulario, pero aún NO se guardan en BD.
- *
- * Cuando exista DetalleClienteDAO, podrás:
- *  - Cargar el detalle al seleccionar un cliente.
- *  - Guardar/actualizar detalle junto con el cliente.
- *  - Borrar detalle cuando borres un cliente.
+ * Versión completa que permite
+ *  - Usa ClienteDAO y DetalleClienteDAO con sus respectivos CRUD.
+ *  - La tabla muestra datos de Cliente y los datos de su respectivo DetalleCliente.
  */
 public class ClientesView {
 
@@ -150,7 +142,7 @@ public class ClientesView {
         form.add(new Label("Email:"), 0, 2);
         form.add(txtEmail, 1, 2);
 
-        // ----- DetalleCliente (solo UI, sin BD de momento) -----
+        // ----- DetalleCliente -----
         txtDireccion.setPromptText("Dirección");
         txtTelefono.setPromptText("Teléfono");
         txtNotas.setPromptText("Notas");
@@ -189,13 +181,24 @@ public class ClientesView {
                 txtEmail.setText(newSel.getEmail());
                 txtId.setDisable(true); // al editar, de momento, no dejamos cambiar el ID
 
-                // DetalleCliente (cuando exista DetalleClienteDAO se cargará desde BD)
-                // TODO: cuando implementéis DetalleClienteDAO, aquí:
-                //   - detalleDAO.findById(newSel.getId())
-                //   - rellenar txtDireccion, txtTelefono, txtNotas con sus valores
-                txtDireccion.clear();
-                txtTelefono.clear();
-                txtNotas.clear();
+                // DetalleCliente
+                try {
+                    DetalleCliente detalleCliente = detalleClienteDAO.findById(newSel.getId());
+                    if(detalleCliente != null) {
+                        txtDireccion.setText(detalleCliente.getDireccion() != null ? detalleCliente.getDireccion() : "");
+                        txtTelefono.setText(detalleCliente.getTelefono() != null ? detalleCliente.getTelefono() : "");
+                        txtNotas.setText(detalleCliente.getNotas() != null ? detalleCliente.getNotas() : "");
+                    } else {
+                        txtDireccion.clear();
+                        txtTelefono.clear();
+                        txtNotas.clear();
+                    }
+
+                } catch (SQLException e) {
+                    mostrarError("Error al recuperar detalles", e);
+                } catch (Exception ex) {
+                    mostrarError("Error ", ex);
+                }
             }
         });
 
@@ -314,14 +317,9 @@ public class ClientesView {
     }
 
     /**
-     * Guardar cliente:
-     *  - Si no existe en la BD → INSERT usando ClienteDAO.insert()
-     *  - Si existe → actualizar los datos con los nuevos inputs.
-     *
-     * NOTA:
-     *  - Los datos de detalle (dirección, teléfono, notas) todavía NO se guardan.
-     *  - Cuando tengáis DetalleClienteDAO y/o ClienteService, aquí se podrá:
-     *      * insertar/actualizar también el detalle en una transacción.
+     * Guardar cliente y sus detalles:
+     *  - Si no existe en la BD → INSERT usando el service guardarClienteCompleto
+     *  - Si existe → actualizar los datos con los nuevos inputs con el service actualizarClienteCompleto
      */
     private void guardarCliente() {
         // Validación rápida
@@ -363,9 +361,7 @@ public class ClientesView {
                 mostrarInfo("Insertado", "Cliente y detalle creados correctamente (con transacción OK).");
             } else {
                 // Ya existe → UPDATE
-                // TODO: cuando implementéis etalleClienteDAO.update(DetalleCliente),
-                //  llamad aquí a esos métodos (idealmente a través de ClienteService).
-                clienteDAO.update(c);
+                clienteService.updateClienteCompleto(c, d);
                 mostrarInfo("Actualizado",
                         "El cliente " + c.getNombre() + " se ha actualizado correctamente.");
             }
@@ -381,14 +377,12 @@ public class ClientesView {
     /**
      * Borrar cliente seleccionado.
      *
-     * Borra un cliente por su ID.
-     *
-     * Cuando exista DetalleClienteDAO, sería buena idea borrar primero
-     * el detalle del cliente y luego el cliente (o usar ON DELETE CASCADE
-     * + transacción en un Service).
+     * Borra un cliente por su ID: primero sus DetalleCliente y luego el Cliente.
      */
     private void borrarClienteSeleccionado() {
         Cliente sel = tabla.getSelectionModel().getSelectedItem();
+        int borrado;
+
         if (sel == null) {
             mostrarAlerta("Sin selección", "Selecciona un cliente en la tabla.");
             return;
@@ -402,10 +396,8 @@ public class ClientesView {
             return;
         }
 
-        // TODO futuro: cuando haya DetalleClienteDAO, borrar primero detalle,
-        //  después cliente, o delegarlo todo a ClienteService.deleteClienteCompleto(id).
         try {
-            int borrado = clienteDAO.deleteById(sel.getId());
+            borrado = clienteService.deleteClienteCompleto(sel.getId());
 
             if(borrado > 0) {
                 mostrarInfo("Borrado correcto", "El cliente " + sel.getNombre() + " se ha borrado correctamente.");
