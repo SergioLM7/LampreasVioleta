@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ComercialDAO {
 
-    private final String INSERT_SQL = "INSERT INTO comercial (id, nombre, email) VALUES (?, ?, ?, ?)";
+    private final String INSERT_SQL = "INSERT INTO comercial (id, nombre, email) VALUES (?, ?, ?)";
 
     private final String SELECT_BY_ID_SQL = "SELECT id, nombre, email FROM comercial WHERE id = ?";
 

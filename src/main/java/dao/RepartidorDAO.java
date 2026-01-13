@@ -9,7 +9,7 @@ import java.util.List;
 
 public class RepartidorDAO {
 
-    private final String INSERT_SQL = "INSERT INTO repartidor (id, nombre, telefono) VALUES (?, ?, ?, ?)";
+    private final String INSERT_SQL = "INSERT INTO repartidor (id, nombre, telefono) VALUES (?, ?, ?)";
 
     private final String SELECT_BY_ID_SQL = "SELECT id, nombre, telefono FROM repartidor WHERE id = ?";
 
