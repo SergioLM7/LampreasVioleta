@@ -7,7 +7,6 @@ import model.Cliente;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -20,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static utils.AlertsUtils.*;
 
 /**
  * Vista JavaFX para gestionar clientes.
@@ -74,7 +75,7 @@ public class ClientesView {
         recargarDatos(); // al iniciar la vista cargamos los clientes
     }
 
-    public Parent getRoot() {
+    public BorderPane getRoot() {
         return root;
     }
 
@@ -410,34 +411,5 @@ public class ClientesView {
             mostrarError("Error al borrar cliente", e);
         }
 
-    }
-
-    /* =========================================================
-       DIÁLOGOS AUXILIARES
-       ========================================================= */
-
-    private void mostrarError(String titulo, Exception e) {
-        e.printStackTrace();
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(titulo);
-        alert.setContentText(e.getMessage());
-        alert.showAndWait();
-    }
-
-    private void mostrarAlerta(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Aviso");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
-    }
-
-    private void mostrarInfo(String titulo, String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText(titulo);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }
