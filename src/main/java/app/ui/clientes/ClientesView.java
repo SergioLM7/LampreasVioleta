@@ -1,4 +1,4 @@
-package app;
+package app.ui.clientes;
 
 import dao.ClienteDAO;
 import dao.DetalleClienteDAO;

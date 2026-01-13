@@ -1,5 +1,6 @@
 package app;
 
+import app.ui.menu.MenuPrincipalView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

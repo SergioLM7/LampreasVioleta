@@ -1,5 +1,8 @@
-package app;
+package app.ui.menu;
 
+import app.ui.clientes.ClientesView;
+import app.ui.comerciales.ComercialesView;
+import app.ui.repartidores.RepartidoresView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
