@@ -138,7 +138,7 @@ public class RepartidoresView {
             recargarDatos();
         });
 
-        //btnBuscar.setOnAction(e -> buscarRepartidorBBDD());
+        btnBuscar.setOnAction(e -> buscarRepartidorBBDD());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -151,9 +151,9 @@ public class RepartidoresView {
      */
     private void recargarDatos() {
         try {
-            List<Repartidor> comerciales = repartidorDAO.findAll();
+            List<Repartidor> repartidores = repartidorDAO.findAll();
 
-            datos.setAll(comerciales);
+            datos.setAll(repartidores);
         } catch (SQLException e) {
             mostrarError("Error al cargar repartidores", e);
         }
@@ -165,22 +165,22 @@ public class RepartidoresView {
      * Se busca en todos los campos de cada Repartidor en base a si contienen el texto
      * que haya en el campo txtBuscar de la interfaz gráfica
      */
-    //    private void buscarRepartidorBBDD(){
-    //        String filtro = txtBuscar.getText().trim();
-    //
-    //        if ((filtro.isEmpty())){
-    //            recargarDatos();
-    //            return;
-    //        }
-    //
-    //        try {
-    //            List<Repartidor> lista = repartidorDAO.search(filtro);
-    //            datos.setAll(lista);
-    //        } catch (SQLException e){
-    //            mostrarError("Error al buscar", e);
-    //        }
-    //
-    //    }
+    private void buscarRepartidorBBDD() {
+        String filtro = txtBuscar.getText().trim();
+
+        if ((filtro.isEmpty())){
+            recargarDatos();
+            return;
+        }
+
+        try {
+            List<Repartidor> lista = repartidorDAO.search(filtro);
+            datos.setAll(lista);
+        } catch (SQLException e){
+            mostrarError("Error al buscar", e);
+        }
+    }
+
     private void limpiarFormulario() {
         txtId.clear();
         txtNombre.clear();

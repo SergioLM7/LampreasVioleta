@@ -136,7 +136,7 @@ public class ComercialesView {
             recargarDatos();
         });
 
-        //btnBuscar.setOnAction(e -> buscarComercialBBDD());
+        btnBuscar.setOnAction(e -> buscarComercialBBDD());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -163,22 +163,22 @@ public class ComercialesView {
      * Se busca en todos los campos de cada Comercial en base a si contienen el texto
      * que haya en el campo txtBuscar de la interfaz gráfica
      */
-    //    private void buscarComercialBBDD(){
-    //        String filtro = txtBuscar.getText().trim();
-    //
-    //        if ((filtro.isEmpty())){
-    //            recargarDatos();
-    //            return;
-    //        }
-    //
-    //        try {
-    //            List<Comercial> lista = comercialDAO.search(filtro);
-    //            datos.setAll(lista);
-    //        } catch (SQLException e){
-    //            mostrarError("Error al buscar", e);
-    //        }
-    //
-    //    }
+        private void buscarComercialBBDD(){
+            String filtro = txtBuscar.getText().trim();
+
+            if ((filtro.isEmpty())){
+                recargarDatos();
+                return;
+            }
+
+            try {
+                List<Comercial> lista = comercialDAO.search(filtro);
+                datos.setAll(lista);
+            } catch (SQLException e){
+                mostrarError("Error al buscar", e);
+            }
+
+        }
     private void limpiarFormulario() {
         txtId.clear();
         txtNombre.clear();
