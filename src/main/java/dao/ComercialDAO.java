@@ -19,6 +19,15 @@ public class ComercialDAO {
 
     private final String SELECT_ALL_SQL = "SELECT id, nombre, email FROM comercial ORDER BY id";
 
+    private final String SEARCH_SQL = """
+            SELECT id, nombre, email
+            FROM comercial
+            WHERE CAST(id as TEXT) ILIKE ?
+                OR nombre ILIKE ?
+                OR email ILIKE ?
+            ORDER BY id
+            """;
+
     private final String UPDATE_SQL = """
         UPDATE comercial 
         SET nombre = ?, email = ? 
@@ -84,6 +93,34 @@ public class ComercialDAO {
         }
 
         return list;
+    }
+
+    /**
+     * Busca en todos los campos de un Comercial en la base de datos
+     * @param filtro el input de búsqueda
+     * @return una lista con los comerciales que coincidan con el input de búsqueda
+     * @throws SQLException si ocurre un error durante la ejecución de la consulta.
+     */
+    public List<Comercial> search(String filtro) throws SQLException {
+
+        String patron = "%" + filtro + "%";
+
+        try (Connection con = Db.getConnection();
+                PreparedStatement pst = con.prepareStatement(SEARCH_SQL)) {
+            pst.setString(1, patron);
+            pst.setString(2, patron);
+            pst.setString(3, patron);
+
+            List<Comercial> out = new ArrayList<>();
+
+            try(ResultSet rs = pst.executeQuery()){
+
+                while (rs.next()){
+                    out.add(mapRow(rs));
+                }
+            }
+            return out;
+        }
     }
 
     /**
