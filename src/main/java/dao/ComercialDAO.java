@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static utils.MapsUtils.mapComercialRow;
+
 public class ComercialDAO {
 
     private final String INSERT_SQL = "INSERT INTO comercial (id, nombre, email) VALUES (?, ?, ?)";
@@ -67,7 +69,7 @@ public class ComercialDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
-                    return mapRow(rs);
+                    return mapComercialRow(rs);
                 }
             }
 
@@ -88,7 +90,7 @@ public class ComercialDAO {
         ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                    list.add(mapRow(rs));
+                    list.add(mapComercialRow(rs));
             }
         }
 
@@ -116,7 +118,7 @@ public class ComercialDAO {
             try(ResultSet rs = pst.executeQuery()){
 
                 while (rs.next()){
-                    out.add(mapRow(rs));
+                    out.add(mapComercialRow(rs));
                 }
             }
             return out;
@@ -160,11 +162,4 @@ public class ComercialDAO {
 
     }
 
-    private Comercial mapRow(ResultSet rs) throws SQLException {
-        return new Comercial(
-                rs.getInt("id"),
-                rs.getString("nombre"),
-                rs.getString("email")
-        );
-    }
 }

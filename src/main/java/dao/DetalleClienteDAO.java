@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static utils.MapsUtils.mapDetalleClienteRow;
+
 /**
  * DAO para la tabla detalle_cliente.
  *
@@ -114,7 +116,7 @@ public class DetalleClienteDAO {
 
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
-                    return mapRow(rs);
+                    return mapDetalleClienteRow(rs);
                 }
                 return null;
             }
@@ -132,7 +134,7 @@ public class DetalleClienteDAO {
              ResultSet rs = pst.executeQuery()) {
 
             while (rs.next()) {
-                out.add(mapRow(rs));
+                out.add(mapDetalleClienteRow(rs));
             }
         }
 
@@ -199,19 +201,4 @@ public class DetalleClienteDAO {
         }
     }
 
-    // =========================================================================
-    //  MAPEO ResultSet → DetalleCliente (buenas prácticas)
-    // =========================================================================
-
-    /**
-     * Convierte una fila de ResultSet en un objeto DetalleCliente.
-     */
-    private DetalleCliente mapRow(ResultSet rs) throws SQLException {
-        int id = rs.getInt("id");
-        String direccion = rs.getString("direccion");
-        String telefono = rs.getString("telefono");
-        String notas = rs.getString("notas");
-
-        return new DetalleCliente(id, direccion, telefono, notas);
-    }
 }

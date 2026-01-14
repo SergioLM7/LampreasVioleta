@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static utils.MapsUtils.mapRepartidorRow;
+
 public class RepartidorDAO {
 
     private final String INSERT_SQL = "INSERT INTO repartidor (id, nombre, telefono) VALUES (?, ?, ?)";
@@ -67,7 +69,7 @@ public class RepartidorDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if(rs.next()) {
-                    return mapRow(rs);
+                    return mapRepartidorRow(rs);
                 }
             }
 
@@ -88,7 +90,7 @@ public class RepartidorDAO {
                 ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                list.add(mapRow(rs));
+                list.add(mapRepartidorRow(rs));
             }
         }
 
@@ -115,7 +117,7 @@ public class RepartidorDAO {
 
             try(ResultSet rs = pst.executeQuery()){
                 while (rs.next()){
-                    out.add(mapRow(rs));
+                    out.add(mapRepartidorRow(rs));
                 }
             }
             return out;
@@ -163,12 +165,4 @@ public class RepartidorDAO {
 
     }
 
-    private Repartidor mapRow(ResultSet rs) throws SQLException {
-        return new Repartidor(
-                rs.getInt("id"),
-                rs.getString("nombre"),
-                rs.getString("telefono")
-        );
-    }
-    
 }

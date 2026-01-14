@@ -16,6 +16,8 @@ import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static utils.MapsUtils.mapClienteRow;
 // Usamos listas dinámicas para devolver varios clientes cuando hacemos un SELECT *.
 
 public class ClienteDAO {
@@ -157,7 +159,7 @@ public class ClienteDAO {
 
             while (rs.next()) {
                 // Iteramos por cada fila del ResultSet.
-                out.add(mapRow(rs));   // Mapeamos el ResultSet a un objeto Cliente y lo añadimos a la lista.
+                out.add(mapClienteRow(rs));   // Mapeamos el ResultSet a un objeto Cliente y lo añadimos a la lista.
             }
         }
 
@@ -182,7 +184,7 @@ public class ClienteDAO {
             try(ResultSet rs = pst.executeQuery()){
 
                 while (rs.next()){
-                    out.add(mapRow(rs));
+                    out.add(mapClienteRow(rs));
                 }
             }
             return out;
@@ -250,14 +252,5 @@ public class ClienteDAO {
         }
 
     }
-
-    private Cliente mapRow(ResultSet rs) throws SQLException {
-        return new Cliente(
-                rs.getInt("id"),
-                rs.getString("nombre"),
-                rs.getString("email")
-        );
-    }
-
 
 }
