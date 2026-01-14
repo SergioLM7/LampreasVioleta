@@ -1,0 +1,17 @@
+[ {
+  "id" : 1,
+  "nombre" : "Chiquilicuatre",
+  "telefono" : "660660660"
+}, {
+  "id" : 2,
+  "nombre" : "Rosario",
+  "telefono" : "655768789"
+}, {
+  "id" : 3,
+  "nombre" : "Juanita Banana",
+  "telefono" : "666666666"
+}, {
+  "id" : 4,
+  "nombre" : "Don Omar",
+  "telefono" : "6969696969"
+} ]

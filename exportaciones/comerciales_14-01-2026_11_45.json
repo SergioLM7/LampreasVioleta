@@ -1,0 +1,9 @@
+[ {
+  "id" : 1,
+  "nombre" : "Jacinto Benavente",
+  "email" : "benavente@lampreas.com"
+}, {
+  "id" : 2,
+  "nombre" : "Rosalía de Castro",
+  "email" : "rosalia@lampreas.com"
+} ]

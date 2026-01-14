@@ -1,0 +1,36 @@
+[ {
+  "id" : 1,
+  "nombre" : "Josua Domínguez",
+  "email" : "josua@test.com",
+  "direccion" : "C/Robada, 90",
+  "telefono" : "6745723242",
+  "notas" : ""
+}, {
+  "id" : 2,
+  "nombre" : "Andrea Valenti",
+  "email" : "andrea@valenti.com",
+  "direccion" : "",
+  "telefono" : "657689532",
+  "notas" : ""
+}, {
+  "id" : 3,
+  "nombre" : "Sergio Garcia",
+  "email" : "sgarcia98@test.com",
+  "direccion" : "C/Dakar, 77",
+  "telefono" : "676676676",
+  "notas" : "Cosas nuevas"
+}, {
+  "id" : 4,
+  "nombre" : "Jose Mateo",
+  "email" : "jose@test.com",
+  "direccion" : "Arimatea, 24",
+  "telefono" : "666666666",
+  "notas" : "Está excluido de por vida"
+}, {
+  "id" : 5,
+  "nombre" : "Ramón De los Santos",
+  "email" : "ramon89@test.com",
+  "direccion" : "Plaza del Sol, 2",
+  "telefono" : "600600608",
+  "notas" : "Todo OK"
+} ]
