@@ -11,10 +11,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import model.ClienteCompletoDTO;
 import model.DetalleCliente;
 import services.ClienteDetalle;
+import utils.JsonIO;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +58,12 @@ public class ClientesView {
     private final TextField txtTelefono  = new TextField();
     private final TextField txtNotas     = new TextField();
 
-    // Botones CRUD
+    // Botones CRUD + exportación a JSON
     private final Button btnNuevo    = new Button("Nuevo");
     private final Button btnGuardar  = new Button("Guardar");
     private final Button btnBorrar   = new Button("Borrar");
     private final Button btnRecargar = new Button("Recargar");
+    private final Button btnExportar = new Button("Exportar");
 
     // Búsqueda
     private final TextField txtBuscar          = new TextField();
@@ -156,7 +165,7 @@ public class ClientesView {
         form.add(txtNotas, 1, 5);
 
         // Zona botones CRUD
-        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
+        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnExportar);
         botonesCrud.setPadding(new Insets(10, 0, 0, 0));
 
         // Zona de búsqueda
@@ -215,6 +224,8 @@ public class ClientesView {
         });
 
         btnBuscar.setOnAction(e -> buscarClientesEnBBDD());
+
+        btnExportar.setOnAction(e -> exportarClientes());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -376,9 +387,7 @@ public class ClientesView {
     }
 
     /**
-     * Borrar cliente seleccionado.
-     *
-     * Borra un cliente por su ID: primero sus DetalleCliente y luego el Cliente.
+     * Borrar cliente seleccionado por su ID: primero sus DetalleCliente y luego el Cliente.
      */
     private void borrarClienteSeleccionado() {
         Cliente sel = tabla.getSelectionModel().getSelectedItem();
@@ -410,6 +419,33 @@ public class ClientesView {
         } catch (SQLException e) {
             mostrarError("Error al borrar cliente", e);
         }
+    }
 
+    /**
+     * Exportar clientes con detalles cliente de la base de datos a un archivo JSON en la raíz del proyecto
+     * Genera un nombre de archivo con la fecha y la hora actuales para diferenciar las exportaciones entre sí
+     */
+    private void exportarClientes() {
+        String dateFormatted = new SimpleDateFormat("dd-MM-yyyy_HH_mm").format(new Date());
+        Path RUTA = Paths.get("exportaciones", "clientes_" + dateFormatted + ".json");
+        File archivoDestino = RUTA.toFile();
+
+        try {
+            List<ClienteCompletoDTO> clientes = clienteService.unirClienteCompleto();
+
+            if(clientes == null || clientes.isEmpty()){
+                mostrarAlerta("Clientes no encontrados", "No existen clientes en la base de datos.");
+                return;
+            }
+
+            JsonIO.write(archivoDestino, clientes);
+            mostrarInfo("Exportación con éxito", "Clientes exportados correctamente.");
+        } catch (SQLException e) {
+            mostrarError("Error de Base de Datos", e);
+        } catch (IOException e) {
+            mostrarError("Error de Escritura", e);
+        } catch (Exception e) {
+            mostrarError("Error inesperado", e);
+        }
     }
 }

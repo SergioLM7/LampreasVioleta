@@ -10,9 +10,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.Repartidor;
+import utils.JsonIO;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static utils.AlertsUtils.mostrarAlerta;
@@ -39,11 +46,12 @@ public class RepartidoresView {
     private final TextField txtNombre = new TextField();
     private final TextField txtTelefono = new TextField();
 
-    // Botones CRUD
+    // Botones CRUD + exportación a JSON
     private final Button btnNuevo = new Button("Nuevo");
     private final Button btnGuardar = new Button("Guardar");
     private final Button btnBorrar = new Button("Borrar");
     private final Button btnRecargar = new Button("Recargar");
+    private final Button btnExportar = new Button("Exportar");
 
     // Búsqueda
     private final TextField txtBuscar = new TextField();
@@ -100,7 +108,7 @@ public class RepartidoresView {
         form.add(txtTelefono, 1, 2);
 
         // Zona botones CRUD
-        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
+        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnExportar);
         botonesCrud.setPadding(new Insets(10, 0, 0, 0));
 
         // Zona de búsqueda
@@ -139,6 +147,8 @@ public class RepartidoresView {
         });
 
         btnBuscar.setOnAction(e -> buscarRepartidorBBDD());
+
+        btnExportar.setOnAction(e -> exportarRepartidores());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -236,9 +246,7 @@ public class RepartidoresView {
     }
 
     /**
-     * Borrar repartidor seleccionado.
-     *
-     * Borra un repartidor por su ID.
+     * Borrar repartidor seleccionado por su ID.
      */
     private void borrarRepartidorSeleccionado() {
         Repartidor sel = tabla.getSelectionModel().getSelectedItem();
@@ -270,7 +278,34 @@ public class RepartidoresView {
         } catch (SQLException e) {
             mostrarError("Error al borrar repartidor", e);
         }
+    }
 
+    /**
+     * Exportar repartidores de la base de datos a un archivo JSON en la raíz del proyecto
+     * Genera un nombre de archivo con la fecha y la hora actuales para diferenciar las exportaciones entre sí
+     */
+    private void exportarRepartidores() {
+        String dateFormatted = new SimpleDateFormat("dd-MM-yyyy_HH_mm").format(new Date());
+        Path RUTA = Paths.get("exportaciones", "repartidores_" + dateFormatted + ".json");
+        File archivoDestino = RUTA.toFile();
+
+        try {
+            List<Repartidor> repartidores = repartidorDAO.findAll();
+
+            if(repartidores == null || repartidores.isEmpty()){
+                mostrarAlerta("Repartidores no encontrados", "No existen repartidores en la base de datos.");
+                return;
+            }
+
+            JsonIO.write(archivoDestino, repartidores);
+            mostrarInfo("Exportación con éxito", "Repartidores exportados correctamente.");
+        } catch (SQLException e) {
+            mostrarError("Error de Base de Datos", e);
+        } catch (IOException e) {
+            mostrarError("Error de Escritura", e);
+        } catch (Exception e) {
+            mostrarError("Error inesperado", e);
+        }
     }
 
 }

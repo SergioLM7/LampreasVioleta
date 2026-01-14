@@ -10,9 +10,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.Comercial;
+import utils.JsonIO;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static utils.AlertsUtils.*;
@@ -37,11 +44,12 @@ public class ComercialesView {
     private final TextField txtNombre = new TextField();
     private final TextField txtEmail = new TextField();
 
-    // Botones CRUD
+    // Botones CRUD + exportación a JSON
     private final Button btnNuevo = new Button("Nuevo");
     private final Button btnGuardar = new Button("Guardar");
     private final Button btnBorrar = new Button("Borrar");
     private final Button btnRecargar = new Button("Recargar");
+    private final Button btnExportar = new Button("Exportar");
 
     // Búsqueda
     private final TextField txtBuscar = new TextField();
@@ -98,7 +106,7 @@ public class ComercialesView {
         form.add(txtEmail, 1, 2);
 
         // Zona botones CRUD
-        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar);
+        HBox botonesCrud = new HBox(10, btnNuevo, btnGuardar, btnBorrar, btnRecargar, btnExportar);
         botonesCrud.setPadding(new Insets(10, 0, 0, 0));
 
         // Zona de búsqueda
@@ -137,6 +145,8 @@ public class ComercialesView {
         });
 
         btnBuscar.setOnAction(e -> buscarComercialBBDD());
+
+        btnExportar.setOnAction(e -> exportarComerciales());
 
         btnLimpiarBusqueda.setOnAction(e -> {
             txtBuscar.clear();
@@ -234,9 +244,7 @@ public class ComercialesView {
     }
 
     /**
-     * Borrar comercial seleccionado.
-     *
-     * Borra un comercial por su ID.
+     * Borrar comercial seleccionado por su ID.
      */
     private void borrarComercialSeleccionado() {
         Comercial sel = tabla.getSelectionModel().getSelectedItem();
@@ -268,7 +276,34 @@ public class ComercialesView {
         } catch (SQLException e) {
             mostrarError("Error al borrar comercial", e);
         }
+    }
 
+    /**
+     * Exportar comerciales de la base de datos a un archivo JSON en la raíz del proyecto
+     * Genera un nombre de archivo con la fecha y la hora actuales para diferenciar las exportaciones entre sí
+     */
+    private void exportarComerciales() {
+        String dateFormatted = new SimpleDateFormat("dd-MM-yyyy_HH_mm").format(new Date());
+        Path RUTA = Paths.get("exportaciones", "comerciales_" + dateFormatted + ".json");
+        File archivoDestino = RUTA.toFile();
+
+        try {
+            List<Comercial> comerciales = comercialDAO.findAll();
+
+            if(comerciales == null || comerciales.isEmpty()){
+                mostrarAlerta("Comerciales no encontrados", "No existen comerciales en la base de datos.");
+                return;
+            }
+
+            JsonIO.write(archivoDestino, comerciales);
+            mostrarInfo("Exportación con éxito", "Comerciales exportados correctamente.");
+        } catch (SQLException e) {
+            mostrarError("Error de Base de Datos", e);
+        } catch (IOException e) {
+            mostrarError("Error de Escritura", e);
+        } catch (Exception e) {
+            mostrarError("Error inesperado", e);
+        }
     }
 
 }
